@@ -23,6 +23,8 @@ function getCurrentTabUrl(callback) {
     // A window can only have one active tab at a time, so the array consists of
     // exactly one tab.
     var tab = tabs[0];
+      chrome.tabs.sendMessage(tab.id, {text: 'report_back'}, doStuffWithDom);
+
 
     // A tab is a plain object that provides information about the tab.
     // See https://developer.chrome.com/extensions/tabs#type-Tab
@@ -88,14 +90,25 @@ function getImageUrl(searchTerm, callback, errorCallback) {
   x.send();
 }
 
+function checkIfGoogleMapsHasARoute(){
+     var routes = document.getElementsByClassName('section-directions-trip-description');
+    document.getElementById('mapinfo').textContent = '<p>okka</p>'  + routes;
+}
+
 function renderStatus(statusText) {
   document.getElementById('status').textContent = statusText;
+}
+
+function doStuffWithDom(domContent) {
+    document.getElementById('mapinfo').textContent = '<p>qqq</p>'  + domContent;
+
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   getCurrentTabUrl(function(url) {
     // Put the image URL in Google search.
     renderStatus('Performing Google Image search for ' + url);
+      checkIfGoogleMapsHasARoute();
 
     getImageUrl(url, function(imageUrl, width, height) {
 
