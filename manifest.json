@@ -10,9 +10,9 @@
     "scripts": ["background.js"]
   },
   "content_scripts": [{
-    "matches": ["*://*.google.com/*","*://*.yelp.com/*", "chrome-extension://*/*.html"],
+    "matches": ["*://*.google.com/*","*://*.yelp.com/*"],
     "js": ["jquery-3.2.1.min.js", "content.js", "background.js" ],
-    "matches": [ "http://*/*", "https://*/*", "chrome-extension://*"]
+    "matches": [ "http://*/*", "https://*/*"]
   }],
   "browser_action": {
     "default_title": "Test Extension"

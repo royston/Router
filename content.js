@@ -20,3 +20,22 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         // sendResponse(document.all[0].outerHTML);
     }
 });
+
+var prevLocation = null;
+
+var fnCheckLocation = function(){
+    var location = window.location.pathname;
+    //Check if maps is currently displaying a navigation
+    if(location.match('/maps/dir') != null && location.match('/maps/dir').index == 0){
+        //Check if direction has changed
+        if(prevLocation != location){
+            console.log("Old Location : " , prevLocation.split('/')[3], '$$$$$', prevLocation.split('/')[4]);
+            console.log("New location : " , location.split('/')[3], '$$$$$', location.split('/')[4]);
+            prevLocation = location;
+
+
+        }
+    }
+
+};
+setInterval( fnCheckLocation, 3000 );
