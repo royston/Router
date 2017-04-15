@@ -7,9 +7,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     iDiv.textContent = 'From Extension!';
     nos[0].appendChild(iDiv);
     console.log(document.getElementsByClassName('section-directions-trip-numbers').toString())
-
-    console.log('Hola. Received message ');
-    console.log(msg);
     // If the received message has the expected format...
     if (msg.text === 'report_back') {
         console.log("content ddd");
