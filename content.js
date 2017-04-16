@@ -23,14 +23,31 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
 var prevLocation = window.location.pathname;
 
-var updateDirectionsList = function(start, end){
-    console.log('Received Start and END : ' , start, end);
+var printt = function(obj){
+    console.log(obj);
+}
+
+var currentPlaces = new Array();
+var origin = '';
+var destination = '';
+
+var getCurrentPlaces = function(result){
+    console.log('GET : ',  result);
+    currentPlaces = result.yelpPlace;
+    var placeId = currentPlaces[0].placeId;
+    placeId = "place_id:" + placeId;
+
+    chrome.runtime.sendMessage({origin: origin, destination: destination, waypoint: placeId}, function(response) {
+        console.log(response.origin, response.destination, response.waypoint, response.time, response.distance);
+    });
+};
+var updateDirectionsList = function(){
     var routes = document.getElementsByClassName('section-listbox')[1];
     var clonedFirstCh = routes.children[0].cloneNode(true);
     clonedFirstCh.id = 'roy-id';
     routes.appendChild(clonedFirstCh);
-    console.log(clonedFirstCh);
 
+    chrome.storage.local.get('yelpPlace', getCurrentPlaces);
 };
 
 var fnCheckLocation = function(){
@@ -39,13 +56,11 @@ var fnCheckLocation = function(){
     if(location.match('/maps/dir') != null && location.match('/maps/dir').index == 0){
         //Check if direction has changed
         if(prevLocation != location){
-            console.log("Old Location : " , prevLocation.split('/')[3], '$$$$$', prevLocation.split('/')[4]);
-            console.log("New location : " , location.split('/')[3], '$$$$$', location.split('/')[4]);
             prevLocation = location;
-            var start = location.split('/')[3];
-            var end = location.split('/')[4];
+            origin = location.split('/')[3];
+            destination = location.split('/')[4];
 
-            updateDirectionsList(start, end);
+            updateDirectionsList();
         }
     }
 
