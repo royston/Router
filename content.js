@@ -37,9 +37,9 @@ var optimalRoute = null;
 var getCurrentPlaces = function(result){
     console.log('GET : ',  result);
     currentPlaces = result.yelpPlace;
-    var placeId = currentPlaces[0].placeId;
+    var placeId = currentPlaces[Math.floor(Math.random() * (currentPlaces.length - 1))].placeId;
     placeId = "place_id:" + placeId;
-    waypointName = currentPlaces[0].name;
+    waypointName = currentPlaces[Math.floor(Math.random() * (currentPlaces.length - 1))].name;
 
     chrome.runtime.sendMessage({origin: origin, destination: destination, waypoint: placeId}, function(response) {
         optimalRoute = response;
@@ -48,8 +48,11 @@ var getCurrentPlaces = function(result){
 };
 var updateDirectionsList = function(){
     var routes = document.getElementsByClassName('section-listbox')[1];
-    var clonedFirstCh = routes.children[0].cloneNode(true);
-    clonedFirstCh.id = 'roy-id';
+    var clonedFirstCh = document.getElementById("roy-id")
+    if(clonedFirstCh == null){
+        clonedFirstCh = routes.children[0].cloneNode(true);
+        clonedFirstCh.id = 'roy-id';
+    }
     if(optimalRoute != null){
         routes.appendChild(clonedFirstCh);
     }
@@ -75,6 +78,8 @@ var updateDirectionsList = function(){
     var docHeading = clonedFirstCh.getElementsByClassName('section-directions-trip-title')[0];
     var docTime = clonedFirstCh.getElementsByClassName('section-directions-trip-duration')[0].childNodes[1];
     var docDistance = clonedFirstCh.getElementsByClassName('section-directions-trip-distance section-directions-trip-secondary-text')["0"].children[2].childNodes["0"];
+    var docDesc = clonedFirstCh.childNodes[3].childNodes[1].childNodes[5].childNodes[1];
+    docDesc.textContent = '';
     docHeading.textContent = 'via ' + waypointName;
     docTime.textContent = time;
     docDistance.textContent = dist + ' miles';
