@@ -1,3 +1,4 @@
+var testing = true;
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     // console.log(document.all[0].outerHTML)
     var nos  = document.getElementsByClassName('section-directions-trip-distance section-directions-trip-secondary-text');
@@ -30,14 +31,18 @@ var printt = function(obj){
 var currentPlaces = new Array();
 var origin = '';
 var destination = '';
+var waypointName = '';
 
+var optimalRoute = null;
 var getCurrentPlaces = function(result){
     console.log('GET : ',  result);
     currentPlaces = result.yelpPlace;
     var placeId = currentPlaces[0].placeId;
     placeId = "place_id:" + placeId;
+    waypointName = currentPlaces[0].name;
 
     chrome.runtime.sendMessage({origin: origin, destination: destination, waypoint: placeId}, function(response) {
+        optimalRoute = response;
         console.log(response.origin, response.destination, response.waypoint, response.time, response.distance);
     });
 };
@@ -45,9 +50,34 @@ var updateDirectionsList = function(){
     var routes = document.getElementsByClassName('section-listbox')[1];
     var clonedFirstCh = routes.children[0].cloneNode(true);
     clonedFirstCh.id = 'roy-id';
-    routes.appendChild(clonedFirstCh);
+    if(optimalRoute != null){
+        routes.appendChild(clonedFirstCh);
+    }
 
-    chrome.storage.local.get('yelpPlace', getCurrentPlaces);
+
+    if(testing = true){
+        //Only for testing. Since chrome sync takes a while to sync places
+        resultObj = {
+            yelpPlace:[{
+                name:  'Chipotle Mexican Grill',
+                address: "Middlefield Road, Redwood City, CA, United States",
+                placeId: 'ChIJU3OawOGej4ARUKHj1NBTLTg'
+            }]
+        };
+
+        getCurrentPlaces(resultObj);
+    }else{
+        chrome.storage.sync.get('yelpPlace', getCurrentPlaces);
+    }
+
+    var time = optimalRoute.timeHoursMins;
+    var dist = optimalRoute.distance;
+    var docHeading = clonedFirstCh.getElementsByClassName('section-directions-trip-title')[0];
+    var docTime = clonedFirstCh.getElementsByClassName('section-directions-trip-duration')[0].childNodes[1];
+    var docDistance = clonedFirstCh.getElementsByClassName('section-directions-trip-distance section-directions-trip-secondary-text')["0"].children[2].childNodes["0"];
+    docHeading.textContent = 'via ' + waypointName;
+    docTime.textContent = time;
+    docDistance.textContent = dist + ' miles';
 };
 
 var fnCheckLocation = function(){

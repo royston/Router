@@ -36,16 +36,16 @@ storePlace = function(word){
     // var pick = prompt("Stored Place : " + places[0].name + ", " + places[0].address);
     var currentPlaces = new Array();
 
-    chrome.storage.local.get('yelpPlace', function(result){
+    chrome.storage.sync.get('yelpPlace', function(result){
         currentPlaces = result.yelpPlace;
         currentPlaces.push(places[0]);
     });
 
     printt(currentPlaces);
-    chrome.storage.local.set({'yelpPlace': currentPlaces}, function(){
+    chrome.storage.sync.set({'yelpPlace': currentPlaces}, function(){
         console.log("saved");
     });
-    chrome.storage.local.get(null, printt);
+    chrome.storage.sync.get(null, printt);
 
 };
 chrome.contextMenus.onClicked.addListener(storePlace);
@@ -60,7 +60,7 @@ chrome.contextMenus.create({
 function doStuffWithDom(domContent) {
     console.log('I received the following DOM content:\n');
 }
-chrome.storage.local.get("yelpPlace", printt);
+chrome.storage.sync.get("yelpPlace", printt);
 
 console.log('I received the following DOM contentOKOK:\n');
 // When the browser-action button is clicked...
