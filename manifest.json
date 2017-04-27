@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
 
-  "name": "Getting started example",
-  "description": "This extension shows a Google Image search result for the current page",
+  "name": "Favorite Place Navigator",
+  "description": "This extension remembers the places you wish you visit and reminds you if it is on your way to somewhere",
   "version": "1.0",
 
   "background": {
@@ -18,11 +18,7 @@
     "default_title": "Test Extension"
   },  "permissions": [
     "activeTab",
-    "https://ajax.googleapis.com/",
 	"alarms",
-	"clipboardRead",
-	"clipboardWrite",
-	"geolocation",
     "storage",
     "contextMenus",
     "http://*/"

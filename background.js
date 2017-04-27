@@ -2,7 +2,8 @@ printt = function(obj){
     console.log(obj);
 }
 
-function getPlaceDetails(placeName) {
+var ppp = new Array();
+function fnGetPlaceDetails(placeName) {
 
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "http://localhost:8080/myapp/location?location=" + placeName, false);
@@ -11,63 +12,54 @@ function getPlaceDetails(placeName) {
     var allResponse = JSON.parse(xhttp.responseText);
     var places = new Array();
 
-    for(var i in allResponse.predictions){
-        var resp = allResponse.predictions[i];
+    for(var i in allResponse.places){
+        var resp = allResponse.places[i];
         // Define desired object
         var place = {
-            name:  placeName,
+            name:  "",
             address: "",
             placeId: ""
         };
-        place.placeId = resp.place_id;
-        place.address = resp.structured_formatting.secondary_text;
-        place.name = resp.structured_formatting.main_text;
+        place.placeId = resp.placeId;
+        place.address = resp.address;
+        place.name = resp.name;
 
         places.push(place);
+        ppp.push(place);
     }
 
     return places;
 }
 
-storePlace = function(word){
-    var placeName = word.selectionText;
-    var places = getPlaceDetails(placeName);
+fnStorePlace = function(word){
+    chrome.tabs.create({
+        url: chrome.extension.getURL('html/picklocation.html'),
+        active: true
+    }, function(tab) {
+        console.log("tab.id ", tab.id);
+    });
 
-    // var pick = prompt("Stored Place : " + places[0].name + ", " + places[0].address);
+    var placeName = word.selectionText;
+    var places = fnGetPlaceDetails(placeName);
+
     var currentPlaces = new Array();
 
     chrome.storage.sync.get('yelpPlace', function(result){
         currentPlaces = result.yelpPlace;
+        for(var place in currentPlaces){
+            if(place.placeId == places[0].placeId){
+                return;
+            }
+        }
         currentPlaces.push(places[0]);
-    });
 
-    printt(currentPlaces);
-    chrome.storage.sync.set({'yelpPlace': currentPlaces}, function(){
-        console.log("saved");
+        chrome.storage.sync.set({'yelpPlace': currentPlaces}, function(){
+            console.log(currentPlaces, "saved");
+        });
     });
-    chrome.storage.sync.get(null, printt);
-
 };
-chrome.contextMenus.onClicked.addListener(storePlace);
 
-chrome.contextMenus.create({
-    id:"idx",
-    title: "Save Place",
-    contexts:["all", "page", "frame", "selection", "link", "editable", "browser_action", "page_action"],  // ContextType
-});
-
-// A function to use as callback
-function doStuffWithDom(domContent) {
-    console.log('I received the following DOM content:\n');
-}
 chrome.storage.sync.get("yelpPlace", printt);
-
-console.log('I received the following DOM contentOKOK:\n');
-// When the browser-action button is clicked...
-chrome.browserAction.onClicked.addListener(function (tab) {
-    console.log('I received the following DOM content:\n');
-    chrome.tabs.sendMessage(tab.id, {text: 'report_back'}, doStuffWithDom);
-});
 
 var getShortestRoute = function(origin, destination, waypoint){
     var xhttp = new XMLHttpRequest();
@@ -81,12 +73,6 @@ var getShortestRoute = function(origin, destination, waypoint){
 };
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    // console.log(sender.tab ?
-    // "from a content script:" + sender.tab.url :
-    //     "from the extension");
-    // if (request.greeting == "hello")
-    //     sendResponse({farewell: "ok goodbye"});
-
     var origin = request.origin;
     var destination = request.destination;
     var waypoint = request.waypoint;
@@ -96,3 +82,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     sendResponse(optimalRoute);
 });
 
+
+chrome.contextMenus.create({
+    id:"idx",
+    title: "Save Place",
+    contexts:["all", "page", "frame", "selection", "link", "editable", "browser_action", "page_action"],  // ContextType
+});
+
+chrome.contextMenus.onClicked.addListener(fnStorePlace);
