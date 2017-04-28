@@ -4,13 +4,13 @@ printt = function(obj){
 
 var ppp = new Array();
 function fnGetPlaceDetails(placeName) {
+    ppp = new Array();
 
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "http://localhost:8080/myapp/location?location=" + placeName, false);
     xhttp.setRequestHeader("Content-type", "application/json");
     xhttp.send();
     var allResponse = JSON.parse(xhttp.responseText);
-    var places = new Array();
 
     for(var i in allResponse.places){
         var resp = allResponse.places[i];
@@ -24,42 +24,50 @@ function fnGetPlaceDetails(placeName) {
         place.address = resp.address;
         place.name = resp.name;
 
-        places.push(place);
         ppp.push(place);
     }
-
-    return places;
 }
 
 fnStorePlace = function(word){
+    var placeName = word.selectionText;
+    fnGetPlaceDetails(placeName);
+
     chrome.tabs.create({
         url: chrome.extension.getURL('html/picklocation.html'),
         active: true
     }, function(tab) {
         console.log("tab.id ", tab.id);
     });
+};
 
-    var placeName = word.selectionText;
-    var places = fnGetPlaceDetails(placeName);
-
-    var currentPlaces = new Array();
-
+fnPersistPlace = function(placeId){
     chrome.storage.sync.get('yelpPlace', function(result){
-        currentPlaces = result.yelpPlace;
-        for(var place in currentPlaces){
-            if(place.placeId == places[0].placeId){
+        var currentPlaces = result.yelpPlace;
+        if(currentPlaces == null){
+            currentPlaces = new Array();
+        }
+        for(var i in currentPlaces){
+            if(currentPlaces[i].placeId == placeId){
                 return;
             }
         }
-        currentPlaces.push(places[0]);
+
+        //get details of place based on placeId that popup returned
+        for(var i in ppp){
+            if(ppp[i].placeId == placeId){
+                currentPlaces.push(ppp[i]);
+                break;
+            }
+        }
 
         chrome.storage.sync.set({'yelpPlace': currentPlaces}, function(){
             console.log(currentPlaces, "saved");
         });
     });
-};
+}
 
 chrome.storage.sync.get("yelpPlace", printt);
+
 
 var getShortestRoute = function(origin, destination, waypoint){
     var xhttp = new XMLHttpRequest();
