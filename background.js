@@ -39,6 +39,7 @@ fnStorePlace = function(word){
         console.log("tab.id ", tab.id);
     });
 };
+//chrome.storage.sync.clear();
 
 fnPersistPlace = function(placeId){
     chrome.storage.sync.get('yelpPlace', function(result){
@@ -55,6 +56,15 @@ fnPersistPlace = function(placeId){
         //get details of place based on placeId that popup returned
         for(var i in ppp){
             if(ppp[i].placeId == placeId){
+                //Got place details. Now, get deocoding details
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("GET", "http://localhost:8080/myapp/geocode?address=" + ppp[i].address, false);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.send();
+                var allResponse = JSON.parse(xhttp.responseText);
+                ppp[i].lat = allResponse.latitude;
+                ppp[i].lng = allResponse.longitude;
+
                 currentPlaces.push(ppp[i]);
                 break;
             }
@@ -98,3 +108,4 @@ chrome.contextMenus.create({
 });
 
 chrome.contextMenus.onClicked.addListener(fnStorePlace);
+

@@ -1,6 +1,6 @@
 var testing = true;
 
-var prevLocation = window.location.pathname;
+var prevLocation = '';
 
 var printt = function(obj){
     console.log(obj);
@@ -15,25 +15,44 @@ var optimalRoute = null;
 var getCurrentPlaces = function(result){
     console.log('GET : ',  result);
     currentPlaces = result.yelpPlace;
-    var placeId = currentPlaces[Math.floor(Math.random() * (currentPlaces.length - 1))].placeId;
+    var pseudoRandomIndex = Math.floor(Math.random() * (currentPlaces.length - 1));
+    var placeId = currentPlaces[pseudoRandomIndex].placeId;
     placeId = "place_id:" + placeId;
-    waypointName = currentPlaces[Math.floor(Math.random() * (currentPlaces.length - 1))].name;
+    waypointName = currentPlaces[pseudoRandomIndex].name;
 
     chrome.runtime.sendMessage({origin: origin, destination: destination, waypoint: placeId}, function(response) {
+        var routes = document.getElementsByClassName('section-listbox')[1];
+        var clonedFirstCh = document.getElementById("roy-id")
+        if(clonedFirstCh == null){
+            clonedFirstCh = routes.children[0].cloneNode(true);
+            clonedFirstCh.style["background-color"] = "peachpuff";
+            clonedFirstCh.id = 'roy-id';
+            clonedFirstCh.backgroundColor = "burlywood";
+        }
+
         optimalRoute = response;
         console.log(response.origin, response.destination, response.waypoint, response.time, response.distance);
+
+        if(optimalRoute != null){
+            routes.appendChild(clonedFirstCh);
+        }
+
+        var time = optimalRoute.timeHoursMins;
+        var dist = optimalRoute.distance;
+        var docHeading = clonedFirstCh.getElementsByClassName('section-directions-trip-title')[0];
+        var docTime = clonedFirstCh.getElementsByClassName('section-directions-trip-duration')[0].childNodes[1];
+        var docDistance = clonedFirstCh.getElementsByClassName('section-directions-trip-distance section-directions-trip-secondary-text')["0"].children[2].childNodes["0"];
+        var docDesc = clonedFirstCh.childNodes[3].childNodes[1].childNodes[5].childNodes[1];
+        docDesc.textContent = '';
+        docHeading.textContent = 'via ' + waypointName;
+        docTime.textContent = time;
+        docDistance.textContent = dist + ' miles';
+
     });
 };
 var updateDirectionsList = function(){
-    var routes = document.getElementsByClassName('section-listbox')[1];
-    var clonedFirstCh = document.getElementById("roy-id")
-    if(clonedFirstCh == null){
-        clonedFirstCh = routes.children[0].cloneNode(true);
-        clonedFirstCh.id = 'roy-id';
-    }
-    if(optimalRoute != null){
-        routes.appendChild(clonedFirstCh);
-    }
+    chrome.storage.sync.get('yelpPlace', getCurrentPlaces);
+
 
 
     // if(testing = true){
@@ -51,18 +70,6 @@ var updateDirectionsList = function(){
     //     chrome.storage.sync.get('yelpPlace', getCurrentPlaces);
     // }
 
-    chrome.storage.sync.get('yelpPlace', getCurrentPlaces);
-
-    var time = optimalRoute.timeHoursMins;
-    var dist = optimalRoute.distance;
-    var docHeading = clonedFirstCh.getElementsByClassName('section-directions-trip-title')[0];
-    var docTime = clonedFirstCh.getElementsByClassName('section-directions-trip-duration')[0].childNodes[1];
-    var docDistance = clonedFirstCh.getElementsByClassName('section-directions-trip-distance section-directions-trip-secondary-text')["0"].children[2].childNodes["0"];
-    var docDesc = clonedFirstCh.childNodes[3].childNodes[1].childNodes[5].childNodes[1];
-    docDesc.textContent = '';
-    docHeading.textContent = 'via ' + waypointName;
-    docTime.textContent = time;
-    docDistance.textContent = dist + ' miles';
 };
 
 var fnCheckLocation = function(){
@@ -81,4 +88,19 @@ var fnCheckLocation = function(){
 
 };
 
+fnCheckLocation();
 setInterval( fnCheckLocation, 3000 );
+
+
+var starsElem = document.getElementsByClassName('stars-directive');
+console.log('stars : ', starsElem["0"].attributes["pclnrating"].value);
+var amenitiesUL = document.getElementById('amenitiy__popup').getElementsByClassName('highlight__popup--content')["0"].childNodes["0"]
+var listItems = amenitiesUL.getElementsByTagName("li");
+var amenities = new Array();
+console.log('Amenities');
+for(var i in listItems){
+    var listItem = listItems[i];
+    amenities.push(listItem.textContent);
+    console.log(listItem.textContent);
+}
+console.log(starsElem["pclnrating"])
