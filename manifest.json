@@ -7,10 +7,10 @@
 
   "background": {
     "persistent": false,
-    "scripts": ["background.js"]
+    "scripts": ["jquery-3.2.1.min.js", "background.js"]
   },
   "content_scripts": [{
-    "matches": ["*://*.google.com/*","*://*.yelp.com/*"],
+    "matches": ["http://*/*","https://*/*"],
     "js": ["jquery-3.2.1.min.js", "content.js", "background.js" ],
     "matches": [ "http://*/*", "https://*/*"]
   }],

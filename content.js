@@ -13,14 +13,10 @@ var waypointName = '';
 
 var optimalRoute = null;
 var getCurrentPlaces = function(result){
-    console.log('GET : ',  result);
-    currentPlaces = result.yelpPlace;
-    var pseudoRandomIndex = Math.floor(Math.random() * (currentPlaces.length - 1));
-    var placeId = currentPlaces[pseudoRandomIndex].placeId;
-    placeId = "place_id:" + placeId;
-    waypointName = currentPlaces[pseudoRandomIndex].name;
 
-    chrome.runtime.sendMessage({origin: origin, destination: destination, waypoint: placeId}, function(response) {
+};
+var updateDirectionsList = function(){
+    chrome.runtime.sendMessage({origin: origin, destination: destination}, function(response) {
         var routes = document.getElementsByClassName('section-listbox')[1];
         var clonedFirstCh = document.getElementById("roy-id")
         if(clonedFirstCh == null){
@@ -44,16 +40,11 @@ var getCurrentPlaces = function(result){
         var docDistance = clonedFirstCh.getElementsByClassName('section-directions-trip-distance section-directions-trip-secondary-text')["0"].children[2].childNodes["0"];
         var docDesc = clonedFirstCh.childNodes[3].childNodes[1].childNodes[5].childNodes[1];
         docDesc.textContent = '';
-        docHeading.textContent = 'via ' + waypointName;
+        docHeading.textContent = 'via ' + optimalRoute.waypoint;
         docTime.textContent = time;
         docDistance.textContent = dist + ' miles';
 
     });
-};
-var updateDirectionsList = function(){
-    chrome.storage.sync.get('yelpPlace', getCurrentPlaces);
-
-
 
     // if(testing = true){
     //     //Only for testing. Since chrome sync takes a while to sync places
