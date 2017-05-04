@@ -1,0 +1,36 @@
+{
+  "name": "FavNavigator",
+  "version": "1.0.0",
+  "description": "Application to suggest deviations to routes to visit favorite places on the way",
+  "main": "popup.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/royston/Router.git"
+  },
+  "keywords": [
+    "googlemaps",
+    "google",
+    "navigation",
+    "favoriteplaces"
+  ],
+  "author": "Royston Monteiro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/royston/Router/issues"
+  },
+  "homepage": "https://github.com/royston/Router",
+  "dependencies": {
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.4.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babelify": "^7.3.0"
+  }
+}
